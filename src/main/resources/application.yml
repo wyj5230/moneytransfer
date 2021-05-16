@@ -1,0 +1,11 @@
+webapi:
+  apiKey: ${MONEYTRANSFER_API_KEY}
+  apiSecret: ${MONEYTRANSFER_API_SECRET}
+thunes:
+  baseUrl: "https://api-mt.pre.thunes.com/v2/money-transfer"
+  quotations: "quotations"
+  transactions: "transactions"
+  confirm: "confirm"
+  connectionTimeout: 1000
+  emailsender: "327113606@qq.com"
+  emailsecret: ${MONEYTRANSFER_EMAIL_SECRET}
