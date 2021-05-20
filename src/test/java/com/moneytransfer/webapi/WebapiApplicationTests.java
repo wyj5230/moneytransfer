@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.Assert;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class WebapiApplicationTests {
@@ -35,7 +38,7 @@ class WebapiApplicationTests {
     private final String SWIFT_BIC_CODE = "ABCDEFGH";
     private final String LASTNAME_DOE = "Doe";
     private final String FIRSTNAME_JOHN = "John";
-    private final String FIRSTNAME_JANE = "John";
+    private final String FIRSTNAME_JANE = "Jane";
     private final String DATE_OF_BIRTH = "1970-01-01";
     private final String ISO_CODE_SGP = "SGP";
     private final String GENDER = "MALE";
@@ -54,6 +57,10 @@ class WebapiApplicationTests {
     private final String OCCUPATION_JANE = "Sales Executive";
     private final String RETAIL_FEE = "Sales Executive";
     private final String RETAIL_FEE_CURRENCY = "Sales Executive";
+    private final String STATUS_COMPLETE = "70000";
+    private final String STATUS_DECLINED_PAYER_CURRENTLY_UNAVAILABLE = "90400";
+    private final String STATUS_DECLINED_BARRED_BENEFICIARY = "90201";
+    private final String STATUS_LIMITATION_ON_TRANSACTION_VALUE = "90305";
 
 
     @Autowired
@@ -69,7 +76,8 @@ class WebapiApplicationTests {
         TransactionResponse transactionResponse = testCreateTransaction(quotationResponse.getId(), CREDIT_PARTY_MSISDN_100);
         testConfirmTransaction(transactionResponse.getId());
         Thread.sleep(3000);
-        testGetTransaction(transactionResponse.getId());
+        transactionResponse = testGetTransaction(transactionResponse.getId());
+        assertTrue(transactionResponse.getStatus().equals(STATUS_COMPLETE));
     }
 
     @Test
@@ -78,7 +86,8 @@ class WebapiApplicationTests {
         TransactionResponse transactionResponse = testCreateTransaction(quotationResponse.getId(), CREDIT_PARTY_MSISDN_117);
         testConfirmTransaction(transactionResponse.getId());
         Thread.sleep(3000);
-        testGetTransaction(transactionResponse.getId());
+        transactionResponse = testGetTransaction(transactionResponse.getId());
+        assertTrue(transactionResponse.getStatus().equals(STATUS_DECLINED_PAYER_CURRENTLY_UNAVAILABLE));
     }
 
     @Test
@@ -87,7 +96,8 @@ class WebapiApplicationTests {
         TransactionResponse transactionResponse = testCreateTransaction(quotationResponse.getId(), CREDIT_PARTY_MSISDN_104);
         testConfirmTransaction(transactionResponse.getId());
         Thread.sleep(3000);
-        testGetTransaction(transactionResponse.getId());
+        transactionResponse = testGetTransaction(transactionResponse.getId());
+        assertTrue(transactionResponse.getStatus().equals(STATUS_DECLINED_BARRED_BENEFICIARY));
     }
 
     @Test
@@ -96,7 +106,8 @@ class WebapiApplicationTests {
         TransactionResponse transactionResponse = testCreateTransaction(quotationResponse.getId(), CREDIT_PARTY_MSISDN_111);
         testConfirmTransaction(transactionResponse.getId());
         Thread.sleep(3000);
-        testGetTransaction(transactionResponse.getId());
+        transactionResponse = testGetTransaction(transactionResponse.getId());
+        assertTrue(transactionResponse.getStatus().equals(STATUS_LIMITATION_ON_TRANSACTION_VALUE));
     }
 
     private QuotationResponse testQuotation() {
@@ -155,10 +166,11 @@ class WebapiApplicationTests {
         return transactionResponse;
     }
 
-    private void testGetTransaction(String transactionId) {
+    private TransactionResponse testGetTransaction(String transactionId) {
         TransactionResponse transactionResponse = moneyTransferRestfulApiClientService.getTransaction(transactionId).getBody();
         System.out.println(">>>>>>>>>>Retrieving transactiong id:" + transactionResponse.getId());
         System.out.println(">>>>>>>>>>Transactiong Status:" + transactionResponse.getStatusMessage());
+        return transactionResponse;
     }
 
     private void sendEmail(TransactionResponse transactionResponse) {
